@@ -10,7 +10,7 @@ while read -r line; do
   unsp=`echo $deq | sed 's: \(..\):%20\1:g'`
   cssurl="https://fonts.googleapis.com/css?family=$unsp"
   #echo $url
-  css=`echo $cssurl | wget -q -i - -O -`
+  css=`curl -s $cssurl`
   #echo $css
   fam=`echo "$css" | grep font-family | sed "s/  font-family: '//" | sed "s/';//"`
   echo -e "$fam\tcss"
