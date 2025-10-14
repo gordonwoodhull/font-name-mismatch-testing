@@ -54,15 +54,16 @@ def compare_csv_values(all_fonts_csv_path, mismatched_csv_path, output_file_path
             # Compare the values
             if value1 == value2:
                 print(f"Row {row_num}: Values match - '{row[0]}' and '{row[1]}' are identical (ignoring case)")
-            if value1.startswith(value2):
-                print(f"Row {row_num}: Possibly ambiguous - '{row[1]}' is a prefix of '{row[0]}'")
-                # Store the prefix and the matching string
-                if value2 not in prefix_matches:
-                    prefix_matches[value2] = []
-                # Add the original string (not lowercase) to the matches
-                prefix_matches[value2].append(row[0])
             else:
-                unmatching_rows.append(row)
+                if value1.startswith(value2):
+                    print(f"Row {row_num}: Possibly ambiguous - '{row[1]}' is a prefix of '{row[0]}'")
+                    # Store the prefix and the matching string
+                    if value2 not in prefix_matches:
+                        prefix_matches[value2] = []
+                    # Add the original string (not lowercase) to the matches
+                    prefix_matches[value2].append(row[0])
+                else:
+                    unmatching_rows.append(row)
     if output_file_path and unmatching_rows:
         try:
             with open(output_file_path, 'w', newline='') as outfile:
@@ -76,8 +77,8 @@ def compare_csv_values(all_fonts_csv_path, mismatched_csv_path, output_file_path
     ambiguous_entries = []
     for prefix, matches in prefix_matches.items():
         if len(matches) > 1:
-            # First column is the prefix, followed by all matching strings
-            ambiguous_entries.append([prefix] + matches)
+            # First match is from all_fonts_csv, followed by all ambiguous font family names
+            ambiguous_entries.append(matches)
 
     if ambiguous_file_path and ambiguous_entries:
         try:
