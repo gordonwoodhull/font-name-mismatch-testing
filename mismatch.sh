@@ -12,8 +12,21 @@ while read -r line; do
   unsp=`echo $deq | sed 's: \(..\):%20\1:g'`
   cssurl="https://fonts.googleapis.com/css?family=$unsp"
 
-  # Get CSS content
-  css=`curl -s $cssurl`
+  # Get CSS content with headers included
+  response=`curl -s -i $cssurl`
+
+  # Check if response contains error status (HTTP 400)
+  if echo "$response" | grep -q "HTTP/[0-9.]\+ 400"; then
+    echo -e "(failed)\tcss"
+    echo -e "(failed)\tfc-scan"
+    echo -e "(failed)\ttypst"
+    echo
+    sleep 1
+    continue
+  fi
+
+  # Strip headers to get just the CSS content
+  css=`echo "$response" | awk 'BEGIN{p=0} /^\r?$/{p=1;next} p{print}'`
 
   # Check for font-family in CSS
   if ! echo "$css" | grep -q "font-family"; then
